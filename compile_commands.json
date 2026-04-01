@@ -1,0 +1,20 @@
+[
+  {
+    "file": "kernel/core/kernel.c",
+    "arguments": [
+      "gcc",
+      "-ffreestanding",
+      "-m32",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-c",
+      "kernel/core/kernel.c",
+      "-o",
+      "build/kernel/core/kernel.o"
+    ],
+    "directory": "/home/pa/x86_64",
+    "output": "build/kernel/core/kernel.o"
+  }
+]
