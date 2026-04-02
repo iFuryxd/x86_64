@@ -1,17 +1,18 @@
 CC = gcc 
 LD = ld
 
-CFLAGS = -ffreestanding -m32 -O2 -Wall -Wextra
+CFLAGS = -ffreestanding -m32 -O2 -Wall -Wextra -Iinclude \
+         -fno-stack-protector -fno-pic -fno-asynchronous-unwind-tables
 ASFLAGS = -m32 -c
 LDFLAGS = -m elf_i386 -T linker/linker.ld -nostdlib
 
 BUILD = build
 
 C_SOURCES = $(wildcard kernel/**/*.c)
-ASM_SOURCES = $(wildcard boot/*.s)
+ASM_SOURCES = $(wildcard boot/*.S)
 
 OBJECTS = $(C_SOURCES:%.c=$(BUILD)/%.o) \
-				 $(ASM_SOURCES:%.s=$(BUILD)/%.o)
+				 $(ASM_SOURCES:%.S=$(BUILD)/%.o)
 all: $(BUILD)/kernel.elf
 
 $(BUILD)/kernel.elf: $(OBJECTS)
@@ -21,7 +22,7 @@ $(BUILD)/%.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -Iinclude -c $< -o $@
 
-$(BUILD)/%.o: %.s
+$(BUILD)/%.o: %.S
 	mkdir -p $(dir $@)
 	$(CC) $(ASFLAGS) $< -o $@
 

@@ -6,5 +6,5 @@ typedef struct {
 
 typedef struct {
   uint32_t type;
-  uint32_t sizel
+  uint32_t sizel;
 } multiboot_tag_t;

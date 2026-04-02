@@ -1,26 +1,26 @@
-#include "../../include/common/types.h"
-
+#include <common/types.h>
+#include <kernel/vga.h>
 void kernel_main(uint32_t magic, uint32_t multiboot_info) {
-  volatile char *vga = (volatile char *)0xB8000;
-  vga[0] = '0';
-  vga[1] = 0x0F;
-  vga[2] = 'K';
-  vga[3] = 0x0F;
+  print("KERNEL_EVENT: BOOTING COMPLETE");
+  print("\n");
 
   if (magic != 0x36D76289) {
-    vga[0] = 'P';
-    vga[1] = 0x0F;
-    vga[2] = 'A';
-    vga[3] = 0x0F;
-    vga[4] = 'N';
-    vga[5] = 0x0F;
-    vga[6] = 'I';
-    vga[7] = 0x0F;
-    vga[8] = 'C';
-    vga[9] = 0x0F;
+    print("KERNEL_EVENT: BAD MAGIC");
+    print("\n");
+    print("magic=");
+    print_hex(magic);
+    print("\n");
+    print("KERNEL_EVENT: PANIC");
     while (1) {
-    }
+    };
   }
+  print("KERNEL_EVENT: MAGIC CHECK PASSED");
+  print("\n");
+  print("magic=");
+  print_hex(magic);
+  print("\n");
+  print("ultiboot_info=");
+  print_hex(multiboot_info);
 
   while (1) {
     __asm__ volatile("hlt");

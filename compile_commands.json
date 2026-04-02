@@ -9,6 +9,10 @@
       "-Wall",
       "-Wextra",
       "-Iinclude",
+      "-fno-stack-protector",
+      "-fno-pic",
+      "-fno-asynchronous-unwind-tables",
+      "-Iinclude",
       "-c",
       "kernel/core/kernel.c",
       "-o",
@@ -16,5 +20,27 @@
     ],
     "directory": "/home/pa/x86_64",
     "output": "build/kernel/core/kernel.o"
+  },
+  {
+    "file": "kernel/core/vga.c",
+    "arguments": [
+      "gcc",
+      "-ffreestanding",
+      "-m32",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-fno-stack-protector",
+      "-fno-pic",
+      "-fno-asynchronous-unwind-tables",
+      "-Iinclude",
+      "-c",
+      "kernel/core/vga.c",
+      "-o",
+      "build/kernel/core/vga.o"
+    ],
+    "directory": "/home/pa/x86_64",
+    "output": "build/kernel/core/vga.o"
   }
 ]
