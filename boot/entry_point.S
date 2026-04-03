@@ -1,13 +1,13 @@
 .intel_syntax noprefix
 
-.section .text
+
 .global _start
 .extern kernel_main
-
+.section .text
 _start:
     cli
 
-    mov esp, stack_top
+    lea esp, [stack_top]
 
     push ebx   /* multiboot info */
     push eax   /* magic */
