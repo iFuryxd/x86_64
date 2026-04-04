@@ -16,3 +16,5 @@ multiboot_header:
     .long 8
 
 header_end:
+
+.section .note.GNU-stack,"",@progbits
