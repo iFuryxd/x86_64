@@ -2,24 +2,28 @@
 #include <kernel/vga.h>
 #include <kernel/multiboot_info.h>
 void kernel_main(uint32_t magic, uint32_t multiboot_info) {
-  print("KERNEL_EVENT: STARTING KERNEL\n");
+  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
+  vga_write("KERNEL_EVENT: STARTING KERNEL\n");
   if (magic != 0x36D76289) {
-    print("KERNEL_EVENT: BAD MAGIC");
-    print("\n");
-    print("magic=");
-    print_hex(magic);
-    print("\n");
-    print("KERNEL_EVENT: PANIC");
+    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
+    vga_write("KERNEL_EVENT: BAD MAGIC");
+    vga_write("\n");
+    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
+    vga_write("magic=");
+    vga_write_hex(magic);
+    vga_write("\n");
+    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
+    vga_write("KERNEL_EVENT: PANIC");
     while (1) {
     }
   }
-  print("KERNEL_EVENT: MAGIC CHECK PASSED\n");
-  print("magic=");
-  print_hex(magic);
-  print("\nmultiboot_info=");
-  print_hex(multiboot_info);
-  print("\nKERNEL_EVENT: PARSING MULTIBOOT_INFO\n");
-  parse_mmap(multiboot_info);
+  vga_write("KERNEL_EVENT: MAGIC CHECK PASSED\n");
+  vga_write("magic=");
+  vga_write_hex(magic);
+  vga_write("\nmultiboot_info=");
+  vga_write_hex(multiboot_info);
+  vga_write("\nKERNEL_EVENT: PARSING MULTIBOOT_INFO\n");
+  parse_mmap(multiboot_info, 0);
   while(1) {
     __asm__ volatile("cli; hlt");
   }
