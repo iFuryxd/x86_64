@@ -82,11 +82,42 @@ void vga_write_hex(uint32_t val) {
     }
 }
 
+void vga_write_hex64(uint64_t val) {
+    const char *hex = "0123456789ABCDEF";
+
+    vga_write("0x");
+
+    for (int i = 0; i < 16; i++) {
+        uint64_t shift = (uint64_t)(15 - i) * 4;
+        uint64_t nibble = (val >> shift) & 0xFULL;
+        vga_pchar(hex[nibble]);
+    }
+}
+
 void vga_write_dec(uint32_t val) {
   char buffer[10];
   int i = 0;
 
   if (val == 0){
+    vga_pchar('0');
+    return;
+  }
+
+  while (val > 0) {
+    buffer[i++] = '0' + (val % 10);
+    val /= 10;
+  }
+
+  while (i > 0) {
+    vga_pchar(buffer[--i]);
+  }
+}
+
+void vga_write_dec64(uint64_t val) {
+  char buffer[20];
+  int i = 0;
+
+  if (val == 0) {
     vga_pchar('0');
     return;
   }

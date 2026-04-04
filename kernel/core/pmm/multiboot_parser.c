@@ -44,9 +44,9 @@ void dump_memory_regions(void) {
     vga_write("\nregion index=");
     vga_write_dec((uint32_t)i);
     vga_write("\nregion base=");
-    vga_write_dec((uint32_t)memory_regions[i].base);
-    vga_write("\nregion lenght=");
-    vga_write_dec((uint32_t)memory_regions[i].len);
+    vga_write_hex64(memory_regions[i].base);
+    vga_write("\nregion length=");
+    vga_write_hex64(memory_regions[i].len);
   }
 #endif
 }
