@@ -1,0 +1,17 @@
+CompileFlags:
+  # The checked-in compile_commands.json was generated from WSL paths
+  # (/mnt/c/... and /usr/bin/gcc), which Windows clangd can't map back to
+  # files opened from this workspace. Use stable fallback flags instead.
+  CompilationDatabase: None
+  Compiler: clang
+  Add:
+    - -Iinclude
+    - --target=i386-unknown-none-elf
+    - -ffreestanding
+    - -m32
+    - -fno-stack-protector
+    - -fno-pic
+    - -fno-asynchronous-unwind-tables
+
+Index:
+  Background: Build

@@ -1,8 +1,7 @@
 [
   {
-    "file": "kernel/core/kernel.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-ffreestanding",
       "-m32",
       "-O2",
@@ -14,17 +13,17 @@
       "-fno-asynchronous-unwind-tables",
       "-Iinclude",
       "-c",
-      "kernel/core/kernel.c",
       "-o",
-      "build/kernel/core/kernel.o"
+      "build/kernel/core/kernel.o",
+      "kernel/core/kernel.c"
     ],
-    "directory": "/home/pa/x86_64",
-    "output": "build/kernel/core/kernel.o"
+    "directory": "/mnt/c/Users/padur/Desktop/x86_64",
+    "file": "/mnt/c/Users/padur/Desktop/x86_64/kernel/core/kernel.c",
+    "output": "/mnt/c/Users/padur/Desktop/x86_64/build/kernel/core/kernel.o"
   },
   {
-    "file": "kernel/core/vga.c",
     "arguments": [
-      "gcc",
+      "/usr/bin/gcc",
       "-ffreestanding",
       "-m32",
       "-O2",
@@ -36,11 +35,60 @@
       "-fno-asynchronous-unwind-tables",
       "-Iinclude",
       "-c",
-      "kernel/core/vga.c",
       "-o",
-      "build/kernel/core/vga.o"
+      "build/kernel/core/multiboot_info.o",
+      "kernel/core/multiboot_info.c"
     ],
-    "directory": "/home/pa/x86_64",
-    "output": "build/kernel/core/vga.o"
+    "directory": "/mnt/c/Users/padur/Desktop/x86_64",
+    "file": "/mnt/c/Users/padur/Desktop/x86_64/kernel/core/multiboot_info.c",
+    "output": "/mnt/c/Users/padur/Desktop/x86_64/build/kernel/core/multiboot_info.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-ffreestanding",
+      "-m32",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-fno-stack-protector",
+      "-fno-pic",
+      "-fno-asynchronous-unwind-tables",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/kernel/core/vga.o",
+      "kernel/core/vga.c"
+    ],
+    "directory": "/mnt/c/Users/padur/Desktop/x86_64",
+    "file": "/mnt/c/Users/padur/Desktop/x86_64/kernel/core/vga.c",
+    "output": "/mnt/c/Users/padur/Desktop/x86_64/build/kernel/core/vga.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-m32",
+      "-c",
+      "-o",
+      "build/boot/entry_point.o",
+      "boot/entry_point.S"
+    ],
+    "directory": "/mnt/c/Users/padur/Desktop/x86_64",
+    "file": "/mnt/c/Users/padur/Desktop/x86_64/boot/entry_point.S",
+    "output": "/mnt/c/Users/padur/Desktop/x86_64/build/boot/entry_point.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-m32",
+      "-c",
+      "-o",
+      "build/boot/multiboot2_header.o",
+      "boot/multiboot2_header.S"
+    ],
+    "directory": "/mnt/c/Users/padur/Desktop/x86_64",
+    "file": "/mnt/c/Users/padur/Desktop/x86_64/boot/multiboot2_header.S",
+    "output": "/mnt/c/Users/padur/Desktop/x86_64/build/boot/multiboot2_header.o"
   }
 ]
