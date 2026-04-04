@@ -27,6 +27,6 @@ typedef struct {
   uint32_t zero;
 } multiboot_mmap_entry_t;
 
-void parse_mmap(uint32_t multiboot_info);
+void parse_mmap(uint32_t multiboot_info, uint8_t WRITE_TO_VGA);
 
 #endif
