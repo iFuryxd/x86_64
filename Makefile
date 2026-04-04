@@ -1,19 +1,24 @@
 CC = gcc 
 LD = ld
 
-CFLAGS = -ffreestanding -m32 -O2 -Wall -Wextra -Iinclude \
-         -fno-stack-protector -fno-pic -fno-asynchronous-unwind-tables
+CFLAGS_COMMON = -ffreestanding -m32 -O2 -Wall -Wextra -Iinclude \
+                -fno-stack-protector -fno-pic -fno-asynchronous-unwind-tables
+CFLAGS = $(CFLAGS_COMMON)
 ASFLAGS = -m32 -c
 LDFLAGS = -m elf_i386 -T linker/linker.ld -nostdlib
 
 BUILD = build
 
-C_SOURCES = $(wildcard kernel/**/*.c)
+C_SOURCES = $(wildcard kernel/core/*.c) \
+            $(wildcard kernel/core/pmm/*.c)
 ASM_SOURCES = $(wildcard boot/*.S)
 
 OBJECTS = $(C_SOURCES:%.c=$(BUILD)/%.o) \
 				 $(ASM_SOURCES:%.S=$(BUILD)/%.o)
 all: $(BUILD)/kernel.elf
+
+debug: CFLAGS += -DKERNEL_DEBUG
+debug: clean all
 
 $(BUILD)/kernel.elf: $(OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ $^
