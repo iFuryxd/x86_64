@@ -7,7 +7,8 @@
 #define PMM_BITMAP_MAX_BYTES 8192
 
 void pmm_init(void);
-void dump_info(void);
-
+uint32_t pmm_alloc_frame(void);
+void pmm_free_frame(uint32_t phys_addr);
+void dump_pmm_info(void);
 
 #endif

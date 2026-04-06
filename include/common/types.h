@@ -11,11 +11,11 @@ typedef signed short int16_t;
 typedef signed int int32_t;
 typedef signed long long int64_t;
 
-typedef uint8_t bool;
+typedef uint8_t kbool_t;
 typedef uint32_t size_t;
 
-#define true ((bool)1)
-#define false ((bool)0)
-#define NULL ((void*)0)
+#define true ((kbool_t)1)
+#define false ((kbool_t)0)
+#define NULL ((void *)0)
 
 #endif

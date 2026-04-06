@@ -6,6 +6,7 @@
 #define MULTIBOOT_TAG_TYPE_END 0
 #define MULTIBOOT_TAG_TYPE_MMAP 6
 #define MULTIBOOT_MEMORY_AVAILABLE 1
+#define MULTIBOOT_TAG_ALIGN 8
 
 #define PMM_MIN_ADDR 0x100000ULL
 #define MAX_MEMORY_REGIONS 32
@@ -37,10 +38,14 @@ typedef struct {
 typedef struct {
   uint64_t base;
   uint64_t len;
+  uint32_t type;
 } memory_region_t;
 
 extern memory_region_t memory_regions[MAX_MEMORY_REGIONS];
 extern uint32_t memory_region_count;
+
+extern uint32_t multiboot_info_base;
+extern uint32_t multiboot_info_size;
 
 void parse_mmap(uint32_t multiboot_info);
 void dump_memory_regions(void);
