@@ -1,6 +1,7 @@
 #include <common/memutil.h>
-#include <kernel/pmm/multiboot_parser.h>
+#include <kernel/pmm/parse_mbi.h>
 #include <kernel/vga.h>
+#include <kernel/pmm/validate_mbi.h>
 
 uint32_t multiboot_info_base = 0;
 uint32_t multiboot_info_size = 0;
@@ -18,25 +19,47 @@ static uint32_t read_u32(const uint8_t *ptr) {
   return value;
 }
 
-void parse_mmap(uint32_t multiboot_info) {
+static kbool_t validator_response(uint32_t multiboot_info) {
+  mbi_validation result = validate_mbi(multiboot_info);
+  if (result != MBI_VALID) {
+    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
+    vga_write("KERNEL_PANIC: VALIDATOR RETURNED AN ERROR");
+    switch(result) {
+      case MBI_ERR_NULL: vga_write("\nERROR: MBI_ERR_NULL"); break;
+      case MBI_ERR_HEADER_SIZE: vga_write("\nERROR: MBI_ERR_HEADER_SIZE"); break;
+      case MBI_ERR_TAG_BOUNDS: vga_write("\nERROR: MBI_ERR_TAG_BOUNDS"); break;
+      case MBI_ERR_TAG_SIZE: vga_write("\nERROR: MBI_ERR_TAG_SIZE"); break;
+      case MBI_ERR_NO_TAG_TYPE_MMAP: vga_write("\nERROR: MBI_ERR_NO_TAG_TYPE_MMAP (6)"); break;
+      case MBI_ERR_TAG_SUM_SIZE: vga_write("\nERROR: MBI_ERR_TAG_SUM_SIZE (cursor + tag->size)"); break;
+      case MBI_ERR_MMAP_SIZE: vga_write("\nERROR: MBI_ERR_MMAP_SIZE"); break;
+      case MBI_ERR_MMAP_END: vga_write("\nERROR: MBI_ERR_MMAP_END (mmap_end > cursor + tag->size)"); break;
+      case MBI_ERR_MMAP_ENTRY_SIZE: vga_write("\nERROR: MBI_ERR_MMAP_ENTRY_SIZE"); break;
+      default: vga_write("\nERROR: UNIDENTIFIED ERROR"); break;
+    }
+    return false;
+  } else {
+    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
+    vga_write("\nKERNEL_EVENT: VALIDATOR PASSED");
+    vga_write("\nKERNEL_EVENT: PROCEEDING WITH PARSER");
+    return true;
+  }
+}
+
+void parse_mbi(uint32_t multiboot_info) {
+  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
+  vga_write("KERNEL_EVENT: RUNNING VALIDATOR FOR multiboot_info");
+  if (!validator_response(multiboot_info)) {
+    return;
+  }
   multiboot_info_base = multiboot_info;
   memory_region_count = 0;
   multiboot_info_size = 0;
 
-  if (multiboot_info == 0) {
-    return;
-  }
-
-  {
     multiboot_info_t *mbi = (multiboot_info_t *)multiboot_info;
     uint8_t *cursor = NULL;
     uint8_t *mbi_end = NULL;
 
     multiboot_info_size = mbi->size;
-    if (multiboot_info_size < sizeof(multiboot_info_t)) {
-      return;
-    }
-
     cursor = (uint8_t *)(mbi + 1);
     mbi_end = (uint8_t *)mbi + multiboot_info_size;
 
@@ -48,30 +71,10 @@ void parse_mmap(uint32_t multiboot_info) {
         break;
       }
 
-      if (tag->size < sizeof(multiboot_tag_t)) {
-        return;
-      }
-
-      if (cursor + tag->size > mbi_end) {
-        return;
-      }
-
       if (tag->type == MULTIBOOT_TAG_TYPE_MMAP) {
         multiboot_tag_mmap_t *mmap = (multiboot_tag_mmap_t *)tag;
         uint8_t *entry_ptr = NULL;
         uint8_t *mmap_end = (uint8_t *)mmap + mmap->size;
-
-        if (mmap->size < sizeof(multiboot_tag_mmap_t)) {
-          return;
-        }
-
-        if (mmap_end > cursor + tag->size) {
-          return;
-        }
-
-        if (mmap->entry_size < sizeof(multiboot_mmap_entry_t)) {
-          return;
-        }
 
         entry_ptr = (uint8_t *)mmap + sizeof(multiboot_tag_mmap_t);
 
@@ -99,17 +102,12 @@ void parse_mmap(uint32_t multiboot_info) {
       }
 
       aligned_tag_size = align_up_u32(tag->size, MULTIBOOT_TAG_ALIGN);
-      if (aligned_tag_size < tag->size) {
-        return;
-      }
-
       cursor += aligned_tag_size;
     }
   }
-}
 
-void dump_memory_regions(void) {
 #ifdef KERNEL_DEBUG
+void dump_memory_regions(void) {
   vga_set_color(vga_make_color(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK));
   vga_write("DEBUG_PRINT: VALUES FOR MEMORY_REGIONS");
   for (uint32_t i = 0; i < memory_region_count; i++) {
@@ -123,5 +121,5 @@ void dump_memory_regions(void) {
     vga_write("\nregion type=");
     vga_write_dec(memory_regions[i].type);
   }
-#endif
 }
+#endif

@@ -50,23 +50,21 @@ __attribute__((noinline)) static uint64_t find_max_addr(void) {
   vga_set_color(vga_make_color(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK));
   vga_write("\nmemory_region_count=");
   vga_write_dec(memory_region_count);
-  for (uint32_t i = 0; i < memory_region_count - 1; i++) {
+  for (uint32_t i = 0; i < memory_region_count; i++) {
     vga_write("\nITERATION ");
     vga_write_dec(i);
-    memory_region_t region;
-    uint64_t end;
-    vga_write("\nENTERING memcpy");
-    memcpy(&region, &memory_regions[i], sizeof(region));
+    uint64_t end = 0;
+    const memory_region_t *region = &memory_regions[i];
 
-    if (region.type != MULTIBOOT_MEMORY_AVAILABLE) {
+    if (region->type != MULTIBOOT_MEMORY_AVAILABLE) {
       continue;
     }
 
-    if (region.len == 0) {
+    if (region->len == 0) {
       continue;
     }
 
-    end = region.base + region.len;
+    end = region_end_u64(region->base, region->len);
     if (end > max) {
       max = end;
     }

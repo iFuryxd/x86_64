@@ -1,15 +1,21 @@
-#ifndef MULTIBOOT_PARSER_H
-#define MULTIBOOT_PARSER_H
+#ifndef PARSE_MBI_H
+#define PARSE_MBI_H
 
 #include <common/types.h>
 
+
+#define MULTIBOOT_MEMORY_AVAILABLE 1
+
 #define MULTIBOOT_TAG_TYPE_END 0
 #define MULTIBOOT_TAG_TYPE_MMAP 6
-#define MULTIBOOT_MEMORY_AVAILABLE 1
 #define MULTIBOOT_TAG_ALIGN 8
 
 #define PMM_MIN_ADDR 0x100000ULL
 #define MAX_MEMORY_REGIONS 32
+
+struct multiboot_tag_t;
+struct multiboot_tag_mmap_t;
+struct multiboot_mmap_entry_t;
 
 typedef struct __attribute__((packed)) {
   uint32_t size;
@@ -35,6 +41,7 @@ typedef struct __attribute__((packed)) {
   uint32_t zero;
 } multiboot_mmap_entry_t;
 
+
 typedef struct {
   uint64_t base;
   uint64_t len;
@@ -47,7 +54,10 @@ extern uint32_t memory_region_count;
 extern uint32_t multiboot_info_base;
 extern uint32_t multiboot_info_size;
 
-void parse_mmap(uint32_t multiboot_info);
+void parse_mbi(uint32_t multiboot_info);
+
+#ifdef KERNEL_DEBUG
 void dump_memory_regions(void);
+#endif
 
 #endif
