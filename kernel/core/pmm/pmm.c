@@ -7,6 +7,7 @@ static uint64_t frame_count = 0;
 static uint64_t bitmap_size_bytes = 0;
 static uint64_t kernel_reserved_base = 0;
 static uint64_t kernel_reserved_size = 0;
+static uint64_t used_frame_count = 0;
 
 static uint8_t bitmap_storage[PMM_BITMAP_MAX_BYTES];
 static uint8_t *bitmap = bitmap_storage;
@@ -18,35 +19,89 @@ static uint64_t align_up_u64(uint64_t value, uint64_t align) {
   return (value + align - 1) & ~(align - 1);
 }
 
-static uint64_t find_max_addr(void) {
+static uint32_t read_u32(const void *ptr) {
+  uint32_t value = 0;
+  memcpy(&value, ptr, sizeof(value));
+  return value;
+}
+
+static uint64_t read_u64(const void *ptr) {
+  uint32_t low = read_u32(ptr);
+  uint32_t high = read_u32((const uint8_t *)ptr + 4);
+  return ((uint64_t)high << 32) | low;
+}
+
+static uint64_t region_end_u64(uint64_t base, uint64_t len) {
+  const uint64_t max_u64 = ~0ULL;
+
+  if (len == 0) {
+    return base;
+  }
+
+  if (base > max_u64 - len) {
+    return max_u64;
+  }
+
+  return base + len;
+}
+
+__attribute__((noinline)) static uint64_t find_max_addr(void) {
   uint64_t max = 0;
-  for (uint32_t i = 0; i < memory_region_count; i++) {
-    if (memory_regions[i].type != MULTIBOOT_MEMORY_AVAILABLE) {
+  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK));
+  vga_write("\nmemory_region_count=");
+  vga_write_dec(memory_region_count);
+  for (uint32_t i = 0; i < memory_region_count - 1; i++) {
+    vga_write("\nITERATION ");
+    vga_write_dec(i);
+    memory_region_t region;
+    uint64_t end;
+    vga_write("\nENTERING memcpy");
+    memcpy(&region, &memory_regions[i], sizeof(region));
+
+    if (region.type != MULTIBOOT_MEMORY_AVAILABLE) {
       continue;
     }
 
-    if (memory_regions[i].len == 0) {
+    if (region.len == 0) {
       continue;
     }
 
-    uint64_t region_end = memory_regions[i].base + memory_regions[i].len;
-    if (region_end > max) {
-      max = region_end;
+    end = region.base + region.len;
+    if (end > max) {
+      max = end;
     }
+    vga_write("\nend=");
+    vga_write_hex64(end);
   }
   return max;
 }
 
 static void pmm_set_frame(uint64_t frame) {
-  if (frame >= frame_count)
+  uint8_t mask = 0;
+
+  if (frame >= frame_count) {
     return;
-  bitmap[frame / 8] |= (1 << (frame % 8));
+  }
+
+  mask = (uint8_t)(1u << (frame % 8));
+  if ((bitmap[frame / 8] & mask) == 0) {
+    bitmap[frame / 8] |= mask;
+    used_frame_count++;
+  }
 }
 
 static void pmm_clear_frame(uint64_t frame) {
-  if (frame >= frame_count)
+  uint8_t mask = 0;
+
+  if (frame >= frame_count) {
     return;
-  bitmap[frame / 8] &= ~(1 << (frame % 8));
+  }
+
+  mask = (uint8_t)(1u << (frame % 8));
+  if ((bitmap[frame / 8] & mask) != 0) {
+    bitmap[frame / 8] &= (uint8_t)~mask;
+    used_frame_count--;
+  }
 }
 
 static kbool_t pmm_test_frame(uint64_t frame) {
@@ -66,7 +121,7 @@ static void pmm_mark_region_free(uint64_t base, uint64_t len) {
     return;
   }
 
-  region_end = base + len;
+  region_end = region_end_u64(base, len);
   if (region_end <= PMM_MIN_ADDR) {
     return;
   }
@@ -97,7 +152,7 @@ static void pmm_reserve_region(uint64_t base, uint64_t len) {
     return;
   }
 
-  region_end = base + len;
+  region_end = region_end_u64(base, len);
   end = align_up_u64(region_end, PAGE_SIZE) / PAGE_SIZE;
   if (start >= frame_count) {
     return;
@@ -113,10 +168,13 @@ static void pmm_reserve_region(uint64_t base, uint64_t len) {
 void pmm_init(void) {
   kernel_reserved_base = (uint32_t)__kernel_start;
   kernel_reserved_size = (uint32_t)(__kernel_end - __kernel_start);
+  vga_write("PMM0\n");
 
   max_addr = find_max_addr();
   frame_count = (max_addr + PAGE_SIZE - 1) / PAGE_SIZE;
   bitmap_size_bytes = (frame_count + 7) / 8;
+  used_frame_count = frame_count;
+  vga_write("PMM1\n");
   if (bitmap_size_bytes > PMM_BITMAP_MAX_BYTES) {
     vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
     vga_write("KERNEL_EVENT: KERNEL_PANIC\nbitmap_size_bytes bigger than "
@@ -126,14 +184,18 @@ void pmm_init(void) {
     }
   }
   memset(bitmap, 0xFF, bitmap_size_bytes);
+  vga_write("PMM2\n");
   for (uint32_t i = 0; i < memory_region_count; i++) {
     if (memory_regions[i].type == MULTIBOOT_MEMORY_AVAILABLE) {
       pmm_mark_region_free(memory_regions[i].base, memory_regions[i].len);
     }
   }
+  vga_write("PMM3\n");
 
   pmm_reserve_region(kernel_reserved_base, kernel_reserved_size);
+  vga_write("PMM4\n");
   pmm_reserve_region(multiboot_info_base, multiboot_info_size);
+  vga_write("PMM5\n");
 }
 
 uint32_t pmm_alloc_frame(void) {
@@ -167,7 +229,8 @@ void pmm_free_frame(uint32_t phys_addr) {
   }
 
   if ((uint64_t)phys_addr >= multiboot_info_base &&
-      (uint64_t)phys_addr < (uint64_t)multiboot_info_base + multiboot_info_size) {
+      (uint64_t)phys_addr <
+          (uint64_t)multiboot_info_base + multiboot_info_size) {
     return;
   }
 
@@ -183,6 +246,10 @@ void dump_pmm_info(void) {
   vga_write_hex64(max_addr);
   vga_write("\nframe_count=");
   vga_write_dec64(frame_count);
+  vga_write("\nused_frame_count=");
+  vga_write_dec64(used_frame_count);
+  vga_write("\nfree_frame_count=");
+  vga_write_dec64(frame_count - used_frame_count);
   vga_write("\nbitmap_size_bytes=");
   vga_write_dec64(bitmap_size_bytes);
   vga_write("\nkernel_base=");

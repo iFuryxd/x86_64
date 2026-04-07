@@ -45,7 +45,7 @@ void kernel_main(uint32_t magic, uint32_t multiboot_info) {
   pmm_init();
 
 #ifdef KERNEL_DEBUG
-  dump_pmm_info();
+  // dump_pmm_info();
 #endif
 
   halt();

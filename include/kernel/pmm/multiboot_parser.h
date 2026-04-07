@@ -11,24 +11,24 @@
 #define PMM_MIN_ADDR 0x100000ULL
 #define MAX_MEMORY_REGIONS 32
 
-typedef struct {
+typedef struct __attribute__((packed)) {
   uint32_t size;
   uint32_t reserved;
 } multiboot_info_t;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
   uint32_t type;
   uint32_t size;
 } multiboot_tag_t;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
   uint32_t type;
   uint32_t size;
   uint32_t entry_size;
   uint32_t entry_version;
 } multiboot_tag_mmap_t;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
   uint64_t addr;
   uint64_t len;
   uint32_t type;
