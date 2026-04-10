@@ -1,6 +1,7 @@
 #include <kernel/vga.h>
 #include <kernel/io.h>
 #include <common/memutil.h>
+#include <stdint.h>
 typedef struct {
   uint8_t character;
   uint8_t attribute;
@@ -35,7 +36,7 @@ static void vga_update_cursor(void) {
   outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
 }
 
-static void vga_pchar(char c) {
+static void vga_pchar(uint8_t c) {
   if (c == '\n') {
     cursor_x = 0;
     cursor_y++;
@@ -63,7 +64,7 @@ static void vga_pchar(char c) {
   vga_update_cursor();
 }
 
-void vga_write(const char *str) {
+void vga_write(const uint8_t* str) {
   if (str == NULL) return;
   while (*str) {
     vga_pchar(*str++);

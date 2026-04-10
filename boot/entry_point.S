@@ -2,7 +2,7 @@
 
 
 .global _start
-.extern kernel_main
+.extern kernel_32main
 .section .text
 _start:
     cli
@@ -12,7 +12,7 @@ _start:
     push ebx   /* multiboot info */
     push eax   /* magic */
 
-    call kernel_main
+    call kernel_32main
 
 .hang:
     hlt

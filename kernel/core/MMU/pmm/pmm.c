@@ -1,6 +1,7 @@
 #include <common/memutil.h>
 #include <kernel/pmm/pmm.h>
 #include <kernel/vga.h>
+#include <kernel/util.h>
 
 static uint64_t max_addr = 0;
 static uint64_t frame_count = 0;
@@ -19,17 +20,6 @@ static uint64_t align_up_u64(uint64_t value, uint64_t align) {
   return (value + align - 1) & ~(align - 1);
 }
 
-static uint32_t read_u32(const void *ptr) {
-  uint32_t value = 0;
-  memcpy(&value, ptr, sizeof(value));
-  return value;
-}
-
-static uint64_t read_u64(const void *ptr) {
-  uint32_t low = read_u32(ptr);
-  uint32_t high = read_u32((const uint8_t *)ptr + 4);
-  return ((uint64_t)high << 32) | low;
-}
 
 static uint64_t region_end_u64(uint64_t base, uint64_t len) {
   const uint64_t max_u64 = ~0ULL;
@@ -47,12 +37,7 @@ static uint64_t region_end_u64(uint64_t base, uint64_t len) {
 
 __attribute__((noinline)) static uint64_t find_max_addr(void) {
   uint64_t max = 0;
-  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK));
-  vga_write("\nmemory_region_count=");
-  vga_write_dec(memory_region_count);
   for (uint32_t i = 0; i < memory_region_count; i++) {
-    vga_write("\nITERATION ");
-    vga_write_dec(i);
     uint64_t end = 0;
     const memory_region_t *region = &memory_regions[i];
 
@@ -68,8 +53,6 @@ __attribute__((noinline)) static uint64_t find_max_addr(void) {
     if (end > max) {
       max = end;
     }
-    vga_write("\nend=");
-    vga_write_hex64(end);
   }
   return max;
 }
@@ -164,36 +147,33 @@ static void pmm_reserve_region(uint64_t base, uint64_t len) {
 }
 
 void pmm_init(void) {
+  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
   kernel_reserved_base = (uint32_t)__kernel_start;
   kernel_reserved_size = (uint32_t)(__kernel_end - __kernel_start);
-  vga_write("PMM0\n");
 
   max_addr = find_max_addr();
   frame_count = (max_addr + PAGE_SIZE - 1) / PAGE_SIZE;
   bitmap_size_bytes = (frame_count + 7) / 8;
   used_frame_count = frame_count;
-  vga_write("PMM1\n");
+
   if (bitmap_size_bytes > PMM_BITMAP_MAX_BYTES) {
     vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
-    vga_write("KERNEL_EVENT: KERNEL_PANIC\nbitmap_size_bytes bigger than "
-              "PMM_BITMAP_MAX_BYTES(4096).\n HALTING");
-    while (1) {
-      __asm__ volatile("hlt");
-    }
+    vga_write("KERNEL: PANIC -> bitmap_size_bytes bigger than "
+              "PMM_BITMAP_MAX_BYTES(4096).\nKERNEL: HALTING");
+    halt();
   }
   memset(bitmap, 0xFF, bitmap_size_bytes);
-  vga_write("PMM2\n");
+  vga_write("PMM: MARKING REGIONS AS FREE");
   for (uint32_t i = 0; i < memory_region_count; i++) {
     if (memory_regions[i].type == MULTIBOOT_MEMORY_AVAILABLE) {
       pmm_mark_region_free(memory_regions[i].base, memory_regions[i].len);
     }
   }
-  vga_write("PMM3\n");
-
+  vga_write("PMM: RESERVING KERNEL MEMORY REGION");
   pmm_reserve_region(kernel_reserved_base, kernel_reserved_size);
-  vga_write("PMM4\n");
+  vga_write("PMM: RESERVING MBI MEMORY REGION");
   pmm_reserve_region(multiboot_info_base, multiboot_info_size);
-  vga_write("PMM5\n");
+  
 }
 
 uint32_t pmm_alloc_frame(void) {
@@ -235,10 +215,10 @@ void pmm_free_frame(uint32_t phys_addr) {
   pmm_clear_frame(frame);
 }
 
-void dump_pmm_info(void) {
 #ifdef KERNEL_DEBUG
+void dump_pmm_info(void) {
   vga_set_color(vga_make_color(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK));
-  vga_write("\nDEBUG_PRINT: VALUES FOR PMM");
+  vga_write("\nDEBUG PRINT: VALUES FOR PMM");
   vga_set_color(vga_make_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
   vga_write("\nmax_addr=");
   vga_write_hex64(max_addr);
@@ -258,6 +238,5 @@ void dump_pmm_info(void) {
   vga_write_hex(multiboot_info_base);
   vga_write("\nmultiboot_info_size=");
   vga_write_dec(multiboot_info_size);
-  vga_write("\n");
-#endif
 }
+#endif

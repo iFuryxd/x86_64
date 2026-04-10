@@ -9,18 +9,18 @@ LDFLAGS = -m elf_i386 -T linker/linker.ld -nostdlib
 
 BUILD = build
 
-C_SOURCES = $(wildcard kernel/core/*.c) \
-            $(wildcard kernel/core/pmm/*.c)
-ASM_SOURCES = $(wildcard boot/*.S)
+C_SOURCES := $(shell find kernel -type f -name '*.c')
+ASM_SOURCES := $(shell find boot -type f -name '*.S')
 
-OBJECTS = $(C_SOURCES:%.c=$(BUILD)/%.o) \
-				 $(ASM_SOURCES:%.S=$(BUILD)/%.o)
+OBJECTS := $(patsubst %.c,$(BUILD)/%.o,$(C_SOURCES)) \
+           $(patsubst %.S,$(BUILD)/%.o,$(ASM_SOURCES))
 all: $(BUILD)/kernel.elf
 
 debug: CFLAGS += -DKERNEL_DEBUG
 debug: clean all
 
 $(BUILD)/kernel.elf: $(OBJECTS)
+	mkdir -p $(dir $@)
 	$(LD) $(LDFLAGS) -o $@ $^
 
 $(BUILD)/%.o: %.c

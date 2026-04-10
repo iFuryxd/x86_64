@@ -2,6 +2,7 @@
 #include <kernel/pmm/parse_mbi.h>
 #include <kernel/vga.h>
 #include <kernel/pmm/validate_mbi.h>
+#include <kernel/util.h>
 
 uint32_t multiboot_info_base = 0;
 uint32_t multiboot_info_size = 0;
@@ -23,7 +24,7 @@ static kbool_t validator_response(uint32_t multiboot_info) {
   mbi_validation result = validate_mbi(multiboot_info);
   if (result != MBI_VALID) {
     vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
-    vga_write("KERNEL_PANIC: VALIDATOR RETURNED AN ERROR");
+    vga_write("KERNEL: PANIC -> VALIDATOR RETURNED AN ERROR");
     switch(result) {
       case MBI_ERR_NULL: vga_write("\nERROR: MBI_ERR_NULL"); break;
       case MBI_ERR_HEADER_SIZE: vga_write("\nERROR: MBI_ERR_HEADER_SIZE"); break;
@@ -38,18 +39,18 @@ static kbool_t validator_response(uint32_t multiboot_info) {
     }
     return false;
   } else {
-    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
-    vga_write("\nKERNEL_EVENT: VALIDATOR PASSED");
-    vga_write("\nKERNEL_EVENT: PROCEEDING WITH PARSER");
+    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
+    vga_write("\nVALIDATOR: VALIDATOR PASSED");
+    vga_write("\nVALIDATOR: PROCEEDING WITH PARSER");
     return true;
   }
 }
 
 void parse_mbi(uint32_t multiboot_info) {
   vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
-  vga_write("KERNEL_EVENT: RUNNING VALIDATOR FOR multiboot_info");
+  vga_write("\nPMM: RUNNING VALIDATOR FOR MBI");
   if (!validator_response(multiboot_info)) {
-    return;
+    halt();
   }
   multiboot_info_base = multiboot_info;
   memory_region_count = 0;
@@ -109,7 +110,7 @@ void parse_mbi(uint32_t multiboot_info) {
 #ifdef KERNEL_DEBUG
 void dump_memory_regions(void) {
   vga_set_color(vga_make_color(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK));
-  vga_write("DEBUG_PRINT: VALUES FOR MEMORY_REGIONS");
+  vga_write("DEBUG PRINT: MEMORY REGIONS");
   for (uint32_t i = 0; i < memory_region_count; i++) {
     vga_set_color(vga_make_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
     vga_write("\nregion index=");

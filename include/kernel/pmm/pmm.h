@@ -10,6 +10,7 @@
 void pmm_init(void);
 uint32_t pmm_alloc_frame(void);
 void pmm_free_frame(uint32_t phys_addr);
+#ifdef KERNEL_DEBUG
 void dump_pmm_info(void);
-
+#endif
 #endif
