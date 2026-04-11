@@ -1,7 +1,7 @@
 #include <kernel/vga.h>
 #include <kernel/io.h>
 #include <common/memutil.h>
-#include <stdint.h>
+
 typedef struct {
   uint8_t character;
   uint8_t attribute;
