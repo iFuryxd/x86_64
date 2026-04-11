@@ -2,11 +2,10 @@
 #define UTIL_H
 
 #include <common/types.h>
-#include <kernel/vga.h>
+#include <common/print.h>
 
 static void halt(void) {
-    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
-    vga_write("\nKERNEL_EVENT: HALTING");
+    print(AS_KERNEL,"HALTING", l_red);
     __asm__ volatile("cli; hlt");
 }
 
