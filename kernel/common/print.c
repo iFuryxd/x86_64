@@ -1,10 +1,18 @@
 #include <kernel/vga.h>
-#include <common/kout.h>
+#include <common/print.h>
+#include <common/string.h>
 
-void print(__writeas as, uint8_t* msg, enum color color) {
-    
-    color = (uint32_t)NULL;
-    switch(color) {
+
+#define U8(str) ((uint8_t*)(str))
+
+typedef struct {
+uint8_t* writeas;
+uint8_t* msg;
+enum color color;
+}__writeas;
+
+static void set_col(enum color color) {
+switch(color) {
         case black: vga_set_color(vga_make_color(VGA_COLOR_BLACK, VGA_COLOR_WHITE)); break;
         case green: vga_set_color(vga_make_color(VGA_COLOR_GREEN, VGA_COLOR_BLACK)); break;
         case cyan: vga_set_color(vga_make_color(VGA_COLOR_CYAN, VGA_COLOR_BLACK)); break;
@@ -22,5 +30,18 @@ void print(__writeas as, uint8_t* msg, enum color color) {
         case white: vga_set_color(vga_make_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK)); break;
         default: vga_set_color(vga_make_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
     };
-    
 }
+
+void print(uint8_t* caller, const char* msg, enum color color) {
+    __writeas as = {
+        caller,
+        U8(msg),
+        color,
+    };
+    set_col(as.color);
+    uint32_t size = strlen(as.writeas) + strlen(as.msg)+1;
+    uint8_t buff[size];
+    strconcat(buff, as.writeas, as.msg);
+    vga_write(buff);
+}
+

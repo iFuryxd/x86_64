@@ -4,35 +4,26 @@
 #include <kernel/vmm/vmm.h>
 #include <kernel/vga.h>
 #include <kernel/util.h>
-
+#include <common/print.h>
 
 #define MAGIC 0x36D76289
 
 
 void kernel_32main(uint32_t magic, uint32_t multiboot_info) {
-  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
-  vga_write("KERNEL: STARTING KERNEL");
+  print(AS_KERNEL, "STARTING KERNEL", l_green);
   if (magic != MAGIC) {
-    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
-    vga_write("KERNEL: PANIC -> BAD MAGIC");
-    vga_write("\n");
-    vga_set_color(vga_make_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
-    vga_write("magic=");
+    print(AS_KERNEL, "BAD MAGIC", l_red);
+    print(AS_NONE, "magic=", white);
     vga_write_hex(magic);
-    vga_write("\n");
-    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
-    vga_write("KERNEL: HALTING");
+    print(AS_KERNEL, "HALTING", l_red);
     halt();
   }
-  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
-  vga_write("\nKERNEL: PARSING MBI");
+  print(AS_KERNEL, "PARSING MBI", l_green);
   parse_mbi(multiboot_info);
-
-  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
-  vga_write("\nKERNEL: INITIALIZING PMM");
+  print(AS_KERNEL, "INITIALIZING PMM", l_green);
   pmm_init();
 
-  vga_write("\nKERNEL: INITIALIZING VMM");
+  print(AS_KERNEL, "INITIALIZING VMM", l_green);
   vmm_init();
 
   halt();

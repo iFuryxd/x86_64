@@ -13,5 +13,4 @@ void vmm_init(void);
 void vmm_map_page(uint32_t virt, uint32_t phys, uint32_t flags);
 void vmmm_unmap_page(uint32_t virt);
 
-
 #endif

@@ -1,8 +1,8 @@
 #include <kernel/pmm/pmm.h>
 #include <kernel/vmm/vmm.h>
 #include <common/memutil.h>
-#include <kernel/vga.h>
 #include <kernel/util.h>
+#include <common/print.h>
 
 static uint32_t page_dir[PAGE_ENTRIES] __attribute__((aligned(PAGE_SIZE)));
 static uint32_t first_page_table[PAGE_ENTRIES] __attribute__((aligned(PAGE_SIZE)));
@@ -26,13 +26,13 @@ uint32_t *page_table = NULL;
 if ((page_dir[dir_index] & PAGE_PRESENT) == 0) {
     uint32_t new_table_phys = pmm_alloc_frame();
     if (new_table_phys == 0) {
-        vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
-        vga_write("\nVMM: PANIC -> NO FREE FRAME FOR PAGE TABLE");
+        print(AS_ERR, "NO FREE FRAME FOR PAGE TABLE", l_red);
+        print(AS_VMM, "HALTING", l_red);
         halt();
     }
     if (new_table_phys >= 0x400000) {
-        vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
-        vga_write("\nVMM: PANIC -> NEW PAGE TABLE NOT IDENTIFY_MAPPED");
+        print(AS_ERR, "NEW PAGE TABLE NOT IDENTIFY_MAPPED", l_red);
+        print(AS_VMM, "HALTING", l_red);
         halt();
     }
         page_table = (uint32_t *)new_table_phys;
@@ -57,6 +57,5 @@ void vmm_init(void) {
         vmm_map_page(addr, addr, PAGE_WRITABLE);
     }
     vmm_enable((uint32_t)page_dir);
-    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
-    vga_write("\nVMM: PAGING ENABLED");
+    print(AS_VMM, "PAGING ENABLED", l_green);
 }

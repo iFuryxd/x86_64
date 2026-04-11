@@ -1,7 +1,7 @@
 #include <common/memutil.h>
 #include <kernel/pmm/pmm.h>
-#include <kernel/vga.h>
 #include <kernel/util.h>
+#include <common/print.h>
 
 static uint64_t max_addr = 0;
 static uint64_t frame_count = 0;
@@ -157,21 +157,20 @@ void pmm_init(void) {
   used_frame_count = frame_count;
 
   if (bitmap_size_bytes > PMM_BITMAP_MAX_BYTES) {
-    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
-    vga_write("KERNEL: PANIC -> bitmap_size_bytes bigger than "
-              "PMM_BITMAP_MAX_BYTES(4096).\nKERNEL: HALTING");
+    print(AS_PMM,"bitmap_size_bytes bigger than PMM_BITMAP_MAX_BYTES(4096)", l_red);
+    print(AS_PMM, "HALTING", l_red);
     halt();
   }
   memset(bitmap, 0xFF, bitmap_size_bytes);
-  vga_write("PMM: MARKING REGIONS AS FREE");
+  print(AS_PMM, "MARKING REGIONS AS FREE", l_green);
   for (uint32_t i = 0; i < memory_region_count; i++) {
     if (memory_regions[i].type == MULTIBOOT_MEMORY_AVAILABLE) {
       pmm_mark_region_free(memory_regions[i].base, memory_regions[i].len);
     }
   }
-  vga_write("PMM: RESERVING KERNEL MEMORY REGION");
+  print(AS_PMM, "RESERVING KERNEL MEMORY REGION", l_green);
   pmm_reserve_region(kernel_reserved_base, kernel_reserved_size);
-  vga_write("PMM: RESERVING MBI MEMORY REGION");
+  print(AS_PMM, "RESERVING MBI MEMORY REGION", l_green);
   pmm_reserve_region(multiboot_info_base, multiboot_info_size);
   
 }
@@ -217,26 +216,24 @@ void pmm_free_frame(uint32_t phys_addr) {
 
 #ifdef KERNEL_DEBUG
 void dump_pmm_info(void) {
-  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK));
-  vga_write("\nDEBUG PRINT: VALUES FOR PMM");
-  vga_set_color(vga_make_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
-  vga_write("\nmax_addr=");
+  print(AS_PMM, " DEBUG PRINT", l_blue);
+  print(AS_NONE, "max_addr=", white);
   vga_write_hex64(max_addr);
-  vga_write("\nframe_count=");
+  print(AS_NONE, "frame_count=", white);
   vga_write_dec64(frame_count);
-  vga_write("\nused_frame_count=");
+  print(AS_NONE, "used_frame_count=", white);
   vga_write_dec64(used_frame_count);
-  vga_write("\nfree_frame_count=");
+  print(AS_NONE, "free_frame_count=", white);
   vga_write_dec64(frame_count - used_frame_count);
-  vga_write("\nbitmap_size_bytes=");
+  print(AS_NONE, "bitmap_size_bytes=", white);
   vga_write_dec64(bitmap_size_bytes);
-  vga_write("\nkernel_base=");
+  print(AS_NONE, "kernel_base=", white);
   vga_write_hex64(kernel_reserved_base);
-  vga_write("\nkernel_size=");
+  print(AS_NONE, "kernel_size=", white);
   vga_write_dec64(kernel_reserved_size);
-  vga_write("\nmultiboot_info_base=");
+  print(AS_NONE, "multiboot_info_base=", white);
   vga_write_hex(multiboot_info_base);
-  vga_write("\nmultiboot_info_size=");
+  print(AS_NONE, "multiboot_info_size=", white);
   vga_write_dec(multiboot_info_size);
 }
 #endif

@@ -3,6 +3,7 @@
 #include <kernel/vga.h>
 #include <kernel/pmm/validate_mbi.h>
 #include <kernel/util.h>
+#include <common/print.h>
 
 uint32_t multiboot_info_base = 0;
 uint32_t multiboot_info_size = 0;
@@ -23,32 +24,29 @@ static uint32_t read_u32(const uint8_t *ptr) {
 static kbool_t validator_response(uint32_t multiboot_info) {
   mbi_validation result = validate_mbi(multiboot_info);
   if (result != MBI_VALID) {
-    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_RED, VGA_COLOR_BLACK));
-    vga_write("KERNEL: PANIC -> VALIDATOR RETURNED AN ERROR");
+    print(AS_VLD, "VALIDATOR RETURNED AN ERROR", l_red);
     switch(result) {
-      case MBI_ERR_NULL: vga_write("\nERROR: MBI_ERR_NULL"); break;
-      case MBI_ERR_HEADER_SIZE: vga_write("\nERROR: MBI_ERR_HEADER_SIZE"); break;
-      case MBI_ERR_TAG_BOUNDS: vga_write("\nERROR: MBI_ERR_TAG_BOUNDS"); break;
-      case MBI_ERR_TAG_SIZE: vga_write("\nERROR: MBI_ERR_TAG_SIZE"); break;
-      case MBI_ERR_NO_TAG_TYPE_MMAP: vga_write("\nERROR: MBI_ERR_NO_TAG_TYPE_MMAP (6)"); break;
-      case MBI_ERR_TAG_SUM_SIZE: vga_write("\nERROR: MBI_ERR_TAG_SUM_SIZE (cursor + tag->size)"); break;
-      case MBI_ERR_MMAP_SIZE: vga_write("\nERROR: MBI_ERR_MMAP_SIZE"); break;
-      case MBI_ERR_MMAP_END: vga_write("\nERROR: MBI_ERR_MMAP_END (mmap_end > cursor + tag->size)"); break;
-      case MBI_ERR_MMAP_ENTRY_SIZE: vga_write("\nERROR: MBI_ERR_MMAP_ENTRY_SIZE"); break;
-      default: vga_write("\nERROR: UNIDENTIFIED ERROR"); break;
+      case MBI_ERR_NULL: print(AS_ERR, "MBI_ERR_NULL", l_red); break;
+      case MBI_ERR_HEADER_SIZE: print(AS_ERR, "MBI_ERR_HEADER_SIZE", l_red); break;
+      case MBI_ERR_TAG_BOUNDS: print(AS_ERR, "MBI_ERR_TAG_BOUNDS", l_red); break;
+      case MBI_ERR_TAG_SIZE: print(AS_ERR, "MBI_ERR_TAG_SIZE", l_red); break;
+      case MBI_ERR_NO_TAG_TYPE_MMAP: print(AS_ERR, "MBI_ERR_NO_TAG_TYPE_MMAP", l_red); break;
+      case MBI_ERR_TAG_SUM_SIZE: print(AS_ERR, "MBI_ERR_TAG_SUM_SIZE", l_red); break;
+      case MBI_ERR_MMAP_SIZE: print(AS_ERR, "MBI_ERR_MMAP_SIZE", l_red); break;
+      case MBI_ERR_MMAP_END: print(AS_ERR, "MBI_ERR_MMAP_END", l_red); break;
+      case MBI_ERR_MMAP_ENTRY_SIZE: print(AS_ERR, "MBI_ERR_MMAP_ENTRY_SIZE", l_red); break;
+      default: print(AS_ERR, "UNIDENTIFIED ERROR", l_red); break;
     }
     return false;
   } else {
-    vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
-    vga_write("\nVALIDATOR: VALIDATOR PASSED");
-    vga_write("\nVALIDATOR: PROCEEDING WITH PARSER");
+    print(AS_VLD, "VALIDATOR PASSED", l_green);
+    print(AS_VLD, "PROCEEDING WITH PARSER", l_green);
     return true;
   }
 }
 
 void parse_mbi(uint32_t multiboot_info) {
-  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
-  vga_write("\nPMM: RUNNING VALIDATOR FOR MBI");
+  print(AS_MBI, "RUNNING VALIDATOR FOR MBI", l_green);
   if (!validator_response(multiboot_info)) {
     halt();
   }
@@ -109,17 +107,15 @@ void parse_mbi(uint32_t multiboot_info) {
 
 #ifdef KERNEL_DEBUG
 void dump_memory_regions(void) {
-  vga_set_color(vga_make_color(VGA_COLOR_LIGHT_BLUE, VGA_COLOR_BLACK));
-  vga_write("DEBUG PRINT: MEMORY REGIONS");
+  print(AS_MBI, "DUMPING MEMORY REGIONS", l_blue);
   for (uint32_t i = 0; i < memory_region_count; i++) {
-    vga_set_color(vga_make_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
-    vga_write("\nregion index=");
+    print(AS_NONE, "region index=", white);
     vga_write_dec((uint32_t)i);
-    vga_write("\nregion base=");
+    print(AS_NONE, "region base=", white);
     vga_write_hex64(memory_regions[i].base);
-    vga_write("\nregion length=");
+    print(AS_NONE, "region length=", white);
     vga_write_hex64(memory_regions[i].len);
-    vga_write("\nregion type=");
+    print(AS_NONE, "region type=", white);
     vga_write_dec(memory_regions[i].type);
   }
 }
