@@ -1,7 +1,6 @@
 #include <common/memutil.h>
-#include <kernel/pmm/parse_mbi.h>
-#include <kernel/vga.h>
-#include <kernel/pmm/validate_mbi.h>
+#include <kernel/mm/parse_mbi.h>
+#include <kernel/mm/validate_mbi.h>
 #include <kernel/util.h>
 #include <common/print.h>
 
