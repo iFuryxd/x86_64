@@ -1,6 +1,9 @@
-#include <kernel/vga.h>
-#include <kernel/io.h>
+#include <kernel/arch/x86_64/vga.h>
+#include <kernel/arch/x86_64/io.h>
 #include <common/memutil.h>
+
+
+#define U8(str) ((uint8_t*)(str))
 
 typedef struct {
   uint8_t character;
@@ -64,7 +67,7 @@ static void vga_pchar(uint8_t c) {
   vga_update_cursor();
 }
 
-void vga_write(const uint8_t* str) {
+void vga_write(const char* str) {
   if (str == NULL) return;
   while (*str) {
     vga_pchar(*str++);
