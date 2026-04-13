@@ -1,4 +1,4 @@
-#include <kernel/vga.h>
+#include <kernel/arch/x86_64/vga.h>
 #include <common/print.h>
 #include <common/string.h>
 
@@ -32,9 +32,9 @@ switch(color) {
     };
 }
 
-void print(uint8_t* caller, const char* msg, enum color color) {
+void print(const char* caller, const char* msg, enum color color) {
     __writeas as = {
-        caller,
+        U8(caller),
         U8(msg),
         color,
     };
@@ -42,6 +42,6 @@ void print(uint8_t* caller, const char* msg, enum color color) {
     uint32_t size = strlen(as.writeas) + strlen(as.msg)+1;
     uint8_t buff[size];
     strconcat(buff, as.writeas, as.msg);
-    vga_write(buff);
+    vga_write((const char*)buff);
 }
 
