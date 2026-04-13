@@ -1,5 +1,5 @@
-#include <kernel/pmm/parse_mbi.h>
-#include <kernel/pmm/validate_mbi.h>
+#include <kernel/mm/parse_mbi.h>
+#include <kernel/mm/validate_mbi.h>
 
 
 static mbi_validation validate_mbi_header(multiboot_info_t *mbi) {
