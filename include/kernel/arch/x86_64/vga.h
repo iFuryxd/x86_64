@@ -26,7 +26,7 @@ enum vga_color {
     VGA_COLOR_WHITE = 15
 };
 
-void vga_write(const uint8_t *str);
+void vga_write(const char *str);
 void vga_write_hex(uint32_t val);
 void vga_write_hex64(uint64_t val);
 void vga_write_dec(uint32_t val);
