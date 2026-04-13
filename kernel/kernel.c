@@ -1,21 +1,20 @@
 #include <common/types.h>
-#include <kernel/pmm/parse_mbi.h>
-#include <kernel/pmm/pmm.h>
-#include <kernel/vmm/vmm.h>
-#include <kernel/vga.h>
+#include <kernel/mm/parse_mbi.h>
+#include <kernel/mm/pmm.h>
+#include <kernel/mm/vmm.h>
 #include <kernel/util.h>
 #include <common/print.h>
+#include <kernel/arch/x86_64/cpuid.h>
 
 #define MAGIC 0x36D76289
 
 
 void kernel_32main(uint32_t magic, uint32_t multiboot_info) {
-  print(AS_KERNEL, "STARTING KERNEL", l_green);
+  print("KERNEL: ", "STARTING KERNEL", l_green);
   if (magic != MAGIC) {
     print(AS_KERNEL, "BAD MAGIC", l_red);
     print(AS_NONE, "magic=", white);
     vga_write_hex(magic);
-    print(AS_KERNEL, "HALTING", l_red);
     halt();
   }
   print(AS_KERNEL, "PARSING MBI", l_green);
@@ -25,6 +24,8 @@ void kernel_32main(uint32_t magic, uint32_t multiboot_info) {
 
   print(AS_KERNEL, "INITIALIZING VMM", l_green);
   vmm_init();
-
+  print(AS_KERNEL, "RUNNING CPUID PROBE", l_green);
+  cpuid_info info = cpuid_probe();
+  
   halt();
 }
