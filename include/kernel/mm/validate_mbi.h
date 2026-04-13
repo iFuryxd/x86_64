@@ -1,7 +1,7 @@
 #ifndef VALIDATE_MBI_H
 #define VALIDATE_MBI_H
 
-#include <kernel/pmm/parse_mbi.h>
+#include <kernel/mm/parse_mbi.h>
 #include <common/types.h>
 
 typedef enum {
