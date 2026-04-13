@@ -1,5 +1,5 @@
-#include <kernel/pmm/pmm.h>
-#include <kernel/vmm/vmm.h>
+#include <kernel/mm/pmm.h>
+#include <kernel/mm/vmm.h>
 #include <common/memutil.h>
 #include <kernel/util.h>
 #include <common/print.h>
@@ -27,12 +27,10 @@ if ((page_dir[dir_index] & PAGE_PRESENT) == 0) {
     uint32_t new_table_phys = pmm_alloc_frame();
     if (new_table_phys == 0) {
         print(AS_ERR, "NO FREE FRAME FOR PAGE TABLE", l_red);
-        print(AS_VMM, "HALTING", l_red);
         halt();
     }
     if (new_table_phys >= 0x400000) {
         print(AS_ERR, "NEW PAGE TABLE NOT IDENTIFY_MAPPED", l_red);
-        print(AS_VMM, "HALTING", l_red);
         halt();
     }
         page_table = (uint32_t *)new_table_phys;
