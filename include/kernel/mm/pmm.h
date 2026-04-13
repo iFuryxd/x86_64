@@ -2,7 +2,7 @@
 #define PMM_H
 
 #include <common/types.h>
-#include <kernel/pmm/parse_mbi.h>
+#include <kernel/mm/parse_mbi.h>
 #define PAGE_SIZE 4096
 #define PMM_BITMAP_MAX_BYTES 8192
 
