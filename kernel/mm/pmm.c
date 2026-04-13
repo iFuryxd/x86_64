@@ -1,5 +1,5 @@
 #include <common/memutil.h>
-#include <kernel/pmm/pmm.h>
+#include <kernel/mm/pmm.h>
 #include <kernel/util.h>
 #include <common/print.h>
 
@@ -158,7 +158,6 @@ void pmm_init(void) {
 
   if (bitmap_size_bytes > PMM_BITMAP_MAX_BYTES) {
     print(AS_PMM,"bitmap_size_bytes bigger than PMM_BITMAP_MAX_BYTES(4096)", l_red);
-    print(AS_PMM, "HALTING", l_red);
     halt();
   }
   memset(bitmap, 0xFF, bitmap_size_bytes);
