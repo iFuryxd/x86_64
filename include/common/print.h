@@ -1,17 +1,18 @@
 #ifndef PRINT_H
 #define PRINT_H
 
-#include <kernel/vga.h>
+#include <kernel/arch/x86_64/vga.h>
 #include <stdint.h>
 
-#define AS_KERNEL  (uint8_t*)"\nKERNEL: "
-#define AS_ERR     (uint8_t*)"\nERROR: "
-#define AS_PMM     (uint8_t*)"\nPMM: "
-#define AS_MBI     (uint8_t*)"\nMBI: "
-#define AS_VMM     (uint8_t*)"\nVMM: "
-#define AS_VLD     (uint8_t*)"\nVALIDATOR: "
-#define AS_USR     (uint8_t*)"\nUSER: "
-#define AS_NONE    (uint8_t*)"\n"
+#define AS_KERNEL  "\nKERNEL: "
+#define AS_ERR     "\nERROR: "
+#define AS_PMM     "\nPMM: "
+#define AS_MBI     "\nMBI: "
+#define AS_VMM     "\nVMM: "
+#define AS_VLD     "\nVALIDATOR: "
+#define AS_CPUID   "\nCPUID: "
+#define AS_USR     "\nUSER: "
+#define AS_NONE    "\n"
 
 
 enum color{
@@ -33,7 +34,7 @@ white,
 };
 
 
-void print(uint8_t* caller, const char *msg, enum color color);
+void print(const char* caller, const char *msg, enum color color);
 
 
 #endif
