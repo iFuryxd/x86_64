@@ -9,8 +9,8 @@
 #define PAGE_WRITABLE 0x2
 
 #define PAGE_FRAME_MASK 0xFFFFF000
-void vmm_init(void);
-void vmm_map_page(uint32_t virt, uint32_t phys, uint32_t flags);
-void vmmm_unmap_page(uint32_t virt);
+void pager_init(void);
+void map_page(uint32_t virt, uint32_t phys, uint32_t flags);
+void unmap_page(uint32_t virt);
 
 #endif

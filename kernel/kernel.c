@@ -1,7 +1,7 @@
 #include <common/types.h>
 #include <kernel/mm/parse_mbi.h>
 #include <kernel/mm/pmm.h>
-#include <kernel/mm/vmm.h>
+#include <kernel/mm/paging32.h>
 #include <kernel/util.h>
 #include <common/print.h>
 #include <kernel/arch/x86_64/cpuid.h>
@@ -22,10 +22,13 @@ void kernel_32main(uint32_t magic, uint32_t multiboot_info) {
   print(AS_KERNEL, "INITIALIZING PMM", l_green);
   pmm_init();
 
-  print(AS_KERNEL, "INITIALIZING VMM", l_green);
-  vmm_init();
+  print(AS_KERNEL, "INITIALIZING PAGER", l_green);
+  pager_init();
   print(AS_KERNEL, "RUNNING CPUID PROBE", l_green);
   cpuid_info info = cpuid_probe();
-  
+  if (!info.has_long_mode || !info.has_msr || !info.has_pae) {
+    error("CPUID INFORMATION HAS NO MSR/PAE/LONG_MODE");
+    halt();
+  }
   halt();
 }
