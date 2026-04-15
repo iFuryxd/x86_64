@@ -157,7 +157,7 @@ void pmm_init(void) {
   used_frame_count = frame_count;
 
   if (bitmap_size_bytes > PMM_BITMAP_MAX_BYTES) {
-    print(AS_PMM,"bitmap_size_bytes bigger than PMM_BITMAP_MAX_BYTES(4096)", l_red);
+    print(AS_PMM,"bitmap_size_bytes bigger than PMM_BITMAP_MAX_BYTES", l_red);
     halt();
   }
   memset(bitmap, 0xFF, bitmap_size_bytes);
