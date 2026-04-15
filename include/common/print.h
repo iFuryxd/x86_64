@@ -6,9 +6,10 @@
 
 #define AS_KERNEL  "\nKERNEL: "
 #define AS_ERR     "\nERROR: "
+#define AS_WARN    "\nWARNING: "
 #define AS_PMM     "\nPMM: "
 #define AS_MBI     "\nMBI: "
-#define AS_VMM     "\nVMM: "
+#define AS_PAG32   "\nPAGER_32: "
 #define AS_VLD     "\nVALIDATOR: "
 #define AS_CPUID   "\nCPUID: "
 #define AS_USR     "\nUSER: "
@@ -22,6 +23,7 @@ cyan,
 red,
 magenta,
 brown,
+yellow,
 l_gray,
 d_gray,
 l_blue,
@@ -29,12 +31,13 @@ l_green,
 l_cyan,
 l_red,
 l_magenta,
-l_brown,
+l_yellow,
 white,
 };
 
 
 void print(const char* caller, const char *msg, enum color color);
-
+void error(const char* msg);
+void warn(const char* msg);
 
 #endif

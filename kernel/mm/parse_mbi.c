@@ -25,16 +25,16 @@ static kbool_t validator_response(uint32_t multiboot_info) {
   if (result != MBI_VALID) {
     print(AS_VLD, "VALIDATOR RETURNED AN ERROR", l_red);
     switch(result) {
-      case MBI_ERR_NULL: print(AS_ERR, "MBI_ERR_NULL", l_red); break;
-      case MBI_ERR_HEADER_SIZE: print(AS_ERR, "MBI_ERR_HEADER_SIZE", l_red); break;
-      case MBI_ERR_TAG_BOUNDS: print(AS_ERR, "MBI_ERR_TAG_BOUNDS", l_red); break;
-      case MBI_ERR_TAG_SIZE: print(AS_ERR, "MBI_ERR_TAG_SIZE", l_red); break;
-      case MBI_ERR_NO_TAG_TYPE_MMAP: print(AS_ERR, "MBI_ERR_NO_TAG_TYPE_MMAP", l_red); break;
-      case MBI_ERR_TAG_SUM_SIZE: print(AS_ERR, "MBI_ERR_TAG_SUM_SIZE", l_red); break;
-      case MBI_ERR_MMAP_SIZE: print(AS_ERR, "MBI_ERR_MMAP_SIZE", l_red); break;
-      case MBI_ERR_MMAP_END: print(AS_ERR, "MBI_ERR_MMAP_END", l_red); break;
-      case MBI_ERR_MMAP_ENTRY_SIZE: print(AS_ERR, "MBI_ERR_MMAP_ENTRY_SIZE", l_red); break;
-      default: print(AS_ERR, "UNIDENTIFIED ERROR", l_red); break;
+      case MBI_ERR_NULL: error("MBI_ERR_NULL"); break;
+      case MBI_ERR_HEADER_SIZE: error("MBI_ERR_HEADER_SIZE"); break;
+      case MBI_ERR_TAG_BOUNDS: error("MBI_ERR_TAG_BOUNDS"); break;
+      case MBI_ERR_TAG_SIZE: error("MBI_ERR_TAG_SIZE"); break;
+      case MBI_ERR_NO_TAG_TYPE_MMAP: error("MBI_ERR_NO_TAG_TYPE_MMAP"); break;
+      case MBI_ERR_TAG_SUM_SIZE: error("MBI_ERR_TAG_SUM_SIZE"); break;
+      case MBI_ERR_MMAP_SIZE: error("MBI_ERR_MMAP_SIZE"); break;
+      case MBI_ERR_MMAP_END: error("MBI_ERR_MMAP_END"); break;
+      case MBI_ERR_MMAP_ENTRY_SIZE: error("MBI_ERR_MMAP_ENTRY_SIZE"); break;
+      default: error("UNIDENTIFIED ERROR"); break;
     }
     return false;
   } else {

@@ -84,7 +84,7 @@ cpuid_info cpuid_probe(void) {
     uint32_t basic_mleaf = cpuid_get_max(BASIC_LEAF);
     info.max_bleaf = basic_mleaf; 
     if (basic_mleaf < FEATURE_LEAF) {
-        print(AS_CPUID, "BASIC CPUID LEAF SMALLER THAN 1", l_red);
+        warn("BASIC CPUID LEAF SMALLER THAN 1");
     } else {
         cpuid_get(FEATURE_LEAF, &eax, &ebx, &ecx, &edx);
     }
@@ -93,17 +93,17 @@ cpuid_info cpuid_probe(void) {
     has_pae = BIT_IS_SET(edx, 6);
     info.has_pae = has_pae;
     if (ext_mleaf < LONG) {
-        print(AS_CPUID, "CAN'T QUERY LONG-MODE CAPABILITY", l_red);
+        warn("CAN'T QUERY LONG-MODE CAPABILITY");
     } else {
     cpuid_get(LONG, &eax, &ebx, &ecx, &edx);
     has_long = BIT_IS_SET(edx, 29);
     info.has_long_mode = has_long;
     }
-    if (!has_msr) {print(AS_CPUID, "NO MODEL-SPECIFIC REGISTER - MSR", l_red);}
+    if (!has_msr) {warn("NO MODEL-SPECIFIC REGISTER - MSR");}
     else {print(AS_CPUID, "MODEL-SPECIFIC REGISTER EXISTS - MSR AVAILABLE", l_green);}
-    if (!has_pae) {print(AS_CPUID, "NO PHYSICAL ADDRESS EXTENSION - PAE", l_red);}
+    if (!has_pae) {warn("NO PHYSICAL ADDRESS EXTENSION - PAE");}
     else {print(AS_CPUID, "PHYSICAL ADDRESS EXTENSION EXISTS - PAE AVAILABLE", l_green);}
-    if (!has_long) {print(AS_CPUID, "NO LONG MODE", l_red);}
+    if (!has_long) {warn("NO LONG MODE");}
     else {print(AS_CPUID, "LONG MODE AVAILABLE", l_green);}
     print(AS_CPUID, "END OF CPUID CHECK. RETURNING TO CALLER", l_green);
     return info;
