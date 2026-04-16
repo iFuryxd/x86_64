@@ -5,6 +5,7 @@
 #include <kernel/util.h>
 #include <common/print.h>
 #include <kernel/arch/x86_64/cpuid.h>
+#include <kernel/arch/x86_64/gdt.h>
 
 #define MAGIC 0x36D76289
 
@@ -30,5 +31,11 @@ void kernel_32main(uint32_t magic, uint32_t multiboot_info) {
     error("CPUID INFORMATION HAS NO MSR/PAE/LONG_MODE");
     halt();
   }
+  print(AS_KERNEL, "POPULATING GDT TABLE AND GDTR TABLE", l_green);
+  gdt_setup();
+  print(AS_KERNEL, "LOADING GDTR", l_green);
+  gdt_load();
+  print(AS_KERNEL, "SAVED POINTER TO GDTR *gdtr_p", l_green);
+  const gdtr_32 *gdtr_p = gdt_get_gdtr();
   halt();
 }
