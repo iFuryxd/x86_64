@@ -14,6 +14,11 @@ typedef struct __attribute__((packed)) {
     uint8_t base_high;
 } gdt_entry;
 
+//GDTR structure, used for the lgdt instruction
+typedef struct __attribute__((packed)) {
+uint16_t limit;
+uint16_t base;
+}gdtr_32;
 
 //Actual GDT structure with necessary entries based on standart 32-bit GDT models
 typedef struct __attribute__((packed)) {
@@ -22,7 +27,6 @@ typedef struct __attribute__((packed)) {
     gdt_entry kernel_data;
     gdt_entry user_code;
     gdt_entry user_data;
-    gdt_entry tss;
 } gdt_32;
 
 
@@ -33,7 +37,12 @@ typedef struct __attribute__((packed)) {
     gdt_entry kernel_data;
 }gdt_64;
 
+
 //Setup each entry based on the following parameters: base, limit, access, flags
 gdt_entry gdt_make_entry(uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
+//Actual GDT struct setup using entries from gdt_make_entry()
+void gdt_setup(void);
+const gdtr_32 *gdt_get_gdtr(void);
+void gdt_load(void);
 
 #endif
