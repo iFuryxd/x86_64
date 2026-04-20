@@ -53,3 +53,13 @@ void error(const char* msg) {
 void warn(const char* msg) {
     print(AS_WARN, msg, l_yellow);
 }
+
+void printhex(const char* msg, const uint64_t value) {
+    print(AS_NONE, msg, white);
+    vga_write_hex64(value);
+}
+
+void printdec(const char* msg, const uint64_t value) {
+    print(AS_NONE, msg, white);
+    vga_write_dec64(value);
+}

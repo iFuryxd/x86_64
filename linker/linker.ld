@@ -1,3 +1,5 @@
+OUTPUT_FORMAT(elf64-x86-64)
+OUTPUT_ARCH(i386:x86-64)
 ENTRY(_start)
 
 SECTIONS {
@@ -6,7 +8,7 @@ SECTIONS {
   
   .multiboot : ALIGN(8) {
     KEEP(*(.multiboot))
-    }
+  }
   .text : ALIGN(4096)
     {
     *(.text*)

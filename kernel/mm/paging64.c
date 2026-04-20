@@ -1,6 +1,8 @@
 #include <kernel/mm/paging64.h>
 #include <kernel/util.h>
 #include <common/print.h>
+#include <common/memutil.h>
+#include <stdint.h>
 
 #define ENTRY_COUNT 512
 #define HUGE (1ULL << 7)
@@ -13,6 +15,9 @@
 #define MASK_2MiB 0x000FFFFFFFE00000ULL
 
 #define MiB 0x0000000000100000
+
+#define PAGE_SIZE_4k 4096ULL
+#define PAGE_SIZE_2M (2ULL * 1024 * 1024)
 
 #define __CHECK_EQUALITY(phys, virt) if (phys != virt) { \
         warn("IDENTITY MAP REQUIRES PHYSICAL ADDRESS == VIRTUAL ADDRESS"); \
@@ -35,6 +40,12 @@ static uint64_t pml4[ENTRY_COUNT] __ALIGN__;
 static uint64_t pdp[ENTRY_COUNT] __ALIGN__;
 static uint64_t pd[ENTRY_COUNT] __ALIGN__;
 
+static void clear_tables(void) {
+        memset(pml4, 0, sizeof(pml4));
+        memset(pdp, 0, sizeof(pdp));
+        memset(pd, 0, sizeof(pd));
+}
+
 void idmap_2MiB(uint64_t phys, uint64_t virt, uint64_t flags) {
     __CHECK_EQUALITY(phys, virt)
     __CHECK_PHYS(phys)
@@ -46,7 +57,21 @@ void idmap_2MiB(uint64_t phys, uint64_t virt, uint64_t flags) {
     
     __CHECK_INDEX(pml4_index, pdp_index)
 
-    pml4[pml4_index] = ((uint64_t)pdp & MASK_4KiB) | PRESENT | WRITABLE;
-    pdp[pdp_index] = ((uint64_t)pd & MASK_4KiB) | PRESENT | WRITABLE;
     pd[pd_index] = (phys & MASK_2MiB) | flags | PRESENT | HUGE;
+}
+
+
+uint32_t p64_init(void) {
+        print(AS_PAG64, "CLEARING TABLES", l_green);
+        clear_tables();
+        
+        print(AS_PAG64, "LINKING PML4[0]->PDP[0]->PD", l_green);
+        pml4[0] = ((uint64_t)pdp & MASK_4KiB) | PRESENT | WRITABLE;
+        pdp[0] = ((uint64_t)pd & MASK_4KiB) | PRESENT | WRITABLE;
+        print(AS_PAG64, "IDENTITY MAPPING AS WRITABLE"
+        "\n{ phys:0x00000000 virt:0x00000000 }\n{ phys:0x00200000 virt:0x00200000 }", l_green);
+        idmap_2MiB(0x00000000, 0x00000000, WRITABLE);
+        idmap_2MiB(0x00200000, 0x00200000, WRITABLE);
+        print(AS_PAG64, "RETURNING TO CALLER", l_green);
+        return (uint32_t)pml4;
 }

@@ -18,4 +18,23 @@ typedef uint32_t size_t;
 #define false ((kbool_t)0)
 #define NULL ((void *)0)
 
+
+#define _PAIR(name, k, v)\
+            struct {\
+            __typeof__(k) key;\
+            __typeof__(v) value;\
+            } name = { .key = (k), .value = (v) }
+
+
+#define _MAP(name, size, ktype, vtype)\
+            typedef struct {\
+                ktype key;\
+                vtype value;\
+                kbool_t used;\
+            } _entry;\
+            typedef struct {\
+            _entry entries[size];\
+            } name;
+
+
 #endif
