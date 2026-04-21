@@ -1,12 +1,13 @@
 #ifndef PRINT_H
 #define PRINT_H
 
-#include <kernel/arch/x86_64/vga.h>
 #include <common/types.h>
+#include <kernel/handle/error/stderr.h>
 
 #define AS_KERNEL  "\nKERNEL: "
 #define AS_ERR     "\nERROR: "
 #define AS_WARN    "\nWARNING: "
+#define AS_PANIC   "\nPANIC:"
 #define AS_PMM     "\nPMM: "
 #define AS_MBI     "\nMBI: "
 #define AS_PAG32   "\nPAGER 32: "
@@ -43,5 +44,7 @@ void error(const char* msg);
 void warn(const char* msg);
 void printhex(const char* msg, const uint64_t value);
 void printdec(const char* msg, const uint64_t value);
+
+__noret void panic(const err *error);
 
 #endif

@@ -19,14 +19,14 @@ typedef uint32_t size_t;
 #define NULL ((void *)0)
 
 
-#define _PAIR(name, k, v)\
+#define _pair(name, k, v)\
             struct {\
             __typeof__(k) key;\
             __typeof__(v) value;\
             } name = { .key = (k), .value = (v) }
 
 
-#define _MAP(name, size, ktype, vtype)\
+#define _map(name, size, ktype, vtype)\
             typedef struct {\
                 ktype key;\
                 vtype value;\
@@ -36,5 +36,8 @@ typedef uint32_t size_t;
             _entry entries[size];\
             } name;
 
+
+#define __noret __attribute__((noreturn))
+#define __align __attribute__((align(4096)))
 
 #endif

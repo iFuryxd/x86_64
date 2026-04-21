@@ -2,6 +2,7 @@
 #define VALIDATE_MBI_H
 
 #include <kernel/mm/parse_mbi.h>
+#include <kernel/handle/error/stderr.h>
 #include <common/types.h>
 
 typedef enum {
@@ -15,8 +16,9 @@ typedef enum {
   MBI_ERR_MMAP_SIZE,
   MBI_ERR_MMAP_END,
   MBI_ERR_MMAP_ENTRY_SIZE,
+  MBI_UNDEFINED,
 } mbi_validation;
 
-mbi_validation validate_mbi(uint32_t mbi);
+err mbi_errcheck(uint32_t multiboot_info);
 
 #endif

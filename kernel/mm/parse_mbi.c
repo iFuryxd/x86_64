@@ -1,9 +1,9 @@
 #include <common/memutil.h>
 #include <kernel/mm/parse_mbi.h>
-#include <kernel/mm/validate_mbi.h>
+#include <kernel/handle/error/validate_mbi.h>
 #include <kernel/util.h>
 #include <common/print.h>
-
+#include <kernel/arch/x86_64/vga.h>
 uint32_t multiboot_info_base = 0;
 uint32_t multiboot_info_size = 0;
 
@@ -20,35 +20,13 @@ static uint32_t read_u32(const uint8_t *ptr) {
   return value;
 }
 
-static kbool_t validator_response(uint32_t multiboot_info) {
-  mbi_validation result = validate_mbi(multiboot_info);
-  if (result != MBI_VALID) {
-    print(AS_VLD, "VALIDATOR RETURNED AN ERROR", l_red);
-    switch(result) {
-      case MBI_ERR_NULL: error("MBI_ERR_NULL"); break;
-      case MBI_ERR_HEADER_SIZE: error("MBI_ERR_HEADER_SIZE"); break;
-      case MBI_ERR_TAG_BOUNDS: error("MBI_ERR_TAG_BOUNDS"); break;
-      case MBI_ERR_TAG_SIZE: error("MBI_ERR_TAG_SIZE"); break;
-      case MBI_ERR_NO_TAG_TYPE_MMAP: error("MBI_ERR_NO_TAG_TYPE_MMAP"); break;
-      case MBI_ERR_TAG_SUM_SIZE: error("MBI_ERR_TAG_SUM_SIZE"); break;
-      case MBI_ERR_MMAP_SIZE: error("MBI_ERR_MMAP_SIZE"); break;
-      case MBI_ERR_MMAP_END: error("MBI_ERR_MMAP_END"); break;
-      case MBI_ERR_MMAP_ENTRY_SIZE: error("MBI_ERR_MMAP_ENTRY_SIZE"); break;
-      default: error("UNIDENTIFIED ERROR"); break;
-    }
-    return false;
-  } else {
-    print(AS_VLD, "VALIDATOR PASSED", l_green);
-    print(AS_VLD, "PROCEEDING WITH PARSER", l_green);
-    return true;
-  }
-}
-
 void parse_mbi(uint32_t multiboot_info) {
   print(AS_MBI, "RUNNING VALIDATOR FOR MBI", l_green);
-  if (!validator_response(multiboot_info)) {
-    halt();
+  err response = mbi_errcheck(multiboot_info);
+  if (response.code != MBI_VALID) {
+    panic(&response);
   }
+  print("\nMBI STATUS: " , response.details, l_green);
   multiboot_info_base = multiboot_info;
   memory_region_count = 0;
   multiboot_info_size = 0;

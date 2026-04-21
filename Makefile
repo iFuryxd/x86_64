@@ -12,10 +12,12 @@ BUILD = build
 C_SOURCES := \
 	kernel/kernel64.c \
 	kernel/arch/x86_64/vga.c \
+	kernel/handle/error/validate_mbi.c \
 	kernel/lib/util.c \
 	kernel/lib/print.c \
 	kernel/lib/memutil.c \
-	kernel/lib/string.c
+	kernel/lib/string.c \
+	kernel/mm/parse_mbi.c
 
 ASM_SOURCES := \
 	boot/multiboot2_header.S \

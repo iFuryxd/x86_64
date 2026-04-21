@@ -2,7 +2,6 @@
 #include <common/print.h>
 #include <common/string.h>
 
-
 #define U8(str) ((uint8_t*)(str))
 
 typedef struct {
@@ -62,4 +61,20 @@ void printhex(const char* msg, const uint64_t value) {
 void printdec(const char* msg, const uint64_t value) {
     print(AS_NONE, msg, white);
     vga_write_dec64(value);
+}
+
+void panic(const err *error) {
+    uint8_t *subsys = error->subsystem ? U8(error->subsystem) : U8("unknown");
+    uint8_t *details = error->details ? U8(error->details) : U8("no details");
+    uint8_t *sep = U8("->");
+    uint32_t size = strlen(subsys) + strlen(sep) + strlen(details);
+
+    uint8_t buffer[size];
+    uint8_t temp[strlen(subsys) + strlen(sep)];
+    strconcat(temp, subsys, sep);
+    strconcat(buffer, temp, details);
+    print(AS_PANIC, (const char*)buffer, red);
+    for (;;) { 
+        __asm__ volatile("cli; hlt");
+    }
 }

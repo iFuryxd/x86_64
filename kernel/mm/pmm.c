@@ -134,16 +134,21 @@ static void pmm_reserve_region(uint64_t base, uint64_t len) {
   }
 
   region_end = region_end_u64(base, len);
+  
   end = align_up_u64(region_end, PAGE_SIZE) / PAGE_SIZE;
+
   if (start >= frame_count) {
     return;
   }
+
   if (end > frame_count) {
     end = frame_count;
   }
+
   for (uint64_t frame = start; frame < end; frame++) {
     pmm_set_frame(frame);
   }
+  
 }
 
 void pmm_init(void) {

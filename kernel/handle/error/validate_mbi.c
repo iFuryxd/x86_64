@@ -1,5 +1,6 @@
 #include <kernel/mm/parse_mbi.h>
-#include <kernel/mm/validate_mbi.h>
+#include <kernel/handle/error/validate_mbi.h>
+#include <common/print.h>
 
 
 static mbi_validation validate_mbi_header(multiboot_info_t *mbi) {
@@ -46,7 +47,7 @@ static mbi_validation validate_mmap_tag(const multiboot_tag_t* tag, const multib
     return MBI_VALID;
 }
 
-mbi_validation validate_mbi(uint32_t mbi) {
+static mbi_validation validate_mbi(uint32_t mbi) {
     if (mbi == 0) {
         return MBI_ERR_NULL;
     }
@@ -77,4 +78,32 @@ mbi_validation validate_mbi(uint32_t mbi) {
     }
     if (mmap_tag_exists != true) return MBI_ERR_NO_TAG_TYPE_MMAP;
     return MBI_VALID;
+}
+
+static const char* mbi_err_details(mbi_validation code) {
+    switch(code) {
+      case MBI_ERR_NULL: return "multiboot information shouldn't be equal to 0"; break;
+      case MBI_ERR_HEADER_SIZE: return "multiboot header size is invalid"; break;
+      case MBI_ERR_TAG_BOUNDS: return "out of multiboot header tag bounds"; break;
+      case MBI_ERR_TAG_SIZE: return "invalid multiboot header tag size"; break;
+      case MBI_ERR_NO_TAG_TYPE_MMAP: return "multiboot header has no memory map tag. tag->type should be 6 at some point"; break;
+      case MBI_ERR_TAG_SUM_SIZE: return "multiboot header cursor + tag->size greater than end of multiboot header"; break;
+      case MBI_ERR_MMAP_SIZE: return "invalid muultiboot header memory map size"; break;
+      case MBI_ERR_MMAP_END: return "multiboot header memory map end is greater than sum of cursor and tag->size"; break;
+      case MBI_ERR_MMAP_ENTRY_SIZE: return "multiboot header memory map entry size is invalid"; break;
+      default: return "undefined error"; break;
+    }
+    return "ok";
+}
+
+err mbi_errcheck(uint32_t multiboot_info) {
+    err mbierr = {
+        .subsystem = "MBI",
+        .code = validate_mbi(multiboot_info),
+        .details = "ok",
+    };
+    if (mbierr.code != MBI_VALID) {
+        mbierr.details = mbi_err_details(mbierr.code);
+    }
+    return mbierr;
 }
