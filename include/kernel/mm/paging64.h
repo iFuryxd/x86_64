@@ -4,7 +4,7 @@
 #include <common/types.h>
 
 
-uint32_t p64_init(void);
+paddr_t p64_init(void);
 
 
 #endif

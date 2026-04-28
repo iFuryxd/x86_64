@@ -74,6 +74,10 @@ void panic(const err *error) {
     strconcat(temp, subsys, sep);
     strconcat(buffer, temp, details);
     print(AS_PANIC, (const char*)buffer, red);
+    if (error->code == 0x36D76289) {
+        print(AS_NONE, "magic = ", red);
+        vga_write_hex64(error->code);
+    }
     for (;;) { 
         __asm__ volatile("cli; hlt");
     }

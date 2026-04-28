@@ -19,6 +19,6 @@ typedef enum {
   MBI_UNDEFINED,
 } mbi_validation;
 
-err mbi_errcheck(uint32_t multiboot_info);
+err mbi_errcheck(uintptr_t multiboot_info);
 
 #endif

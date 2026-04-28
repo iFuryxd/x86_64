@@ -47,7 +47,7 @@ static mbi_validation validate_mmap_tag(const multiboot_tag_t* tag, const multib
     return MBI_VALID;
 }
 
-static mbi_validation validate_mbi(uint32_t mbi) {
+static mbi_validation validate_mbi(uintptr_t mbi) {
     if (mbi == 0) {
         return MBI_ERR_NULL;
     }
@@ -96,7 +96,7 @@ static const char* mbi_err_details(mbi_validation code) {
     return "ok";
 }
 
-err mbi_errcheck(uint32_t multiboot_info) {
+err mbi_errcheck(uintptr_t multiboot_info) {
     err mbierr = {
         .subsystem = "MBI",
         .code = validate_mbi(multiboot_info),

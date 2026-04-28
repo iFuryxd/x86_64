@@ -12,12 +12,20 @@ BUILD = build
 C_SOURCES := \
 	kernel/kernel64.c \
 	kernel/arch/x86_64/vga.c \
+	kernel/arch/x86_64/serial.c \
+	kernel/arch/x86_64/cpuid.c \
+	kernel/lib/serial_debug.c \
 	kernel/handle/error/validate_mbi.c \
+	kernel/handle/error/pmmerr.c \
 	kernel/lib/util.c \
 	kernel/lib/print.c \
 	kernel/lib/memutil.c \
 	kernel/lib/string.c \
-	kernel/mm/parse_mbi.c
+	kernel/mm/parse_mbi.c \
+	kernel/mm/pmm.c
+
+CHECK_C_SOURCES := $(sort $(C_SOURCES) $(shell find kernel -name '*.c'))
+CHECK_OBJECTS := $(patsubst %.c,$(BUILD)/check/%.o,$(CHECK_C_SOURCES))
 
 ASM_SOURCES := \
 	boot/multiboot2_header.S \
@@ -29,6 +37,12 @@ all: $(BUILD)/kernel.elf
 
 debug: CFLAGS += -DKERNEL_DEBUG
 debug: clean all
+
+check-all: $(CHECK_OBJECTS)
+
+$(BUILD)/check/%.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD)/kernel.elf: $(OBJECTS)
 	mkdir -p $(dir $@)
@@ -50,7 +64,7 @@ $(ISO): $(BUILD)/kernel.elf
 	grub-mkrescue -o $(ISO) $(BUILD)/iso
 
 run: $(ISO)
-	qemu-system-x86_64 -cdrom $(ISO)
+	qemu-system-x86_64 -cdrom $(ISO) -serial stdio
 
 clean:
 	rm -rf $(BUILD)

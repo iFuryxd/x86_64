@@ -1,8 +1,8 @@
+#include "common/types.h"
 #include <kernel/mm/paging64.h>
 #include <kernel/util.h>
 #include <common/print.h>
 #include <common/memutil.h>
-#include <stdint.h>
 
 #define ENTRY_COUNT 512
 #define HUGE (1ULL << 7)
@@ -10,7 +10,6 @@
 #define WRITABLE (1ULL << 1)
 #define PRESENT (1ULL << 0)
 
-#define __ALIGN__ __attribute__((aligned(4096)))
 #define MASK_4KiB 0x000FFFFFFFFFF000ULL
 #define MASK_2MiB 0x000FFFFFFFE00000ULL
 
@@ -36,9 +35,9 @@
         return;\
         }
 
-static uint64_t pml4[ENTRY_COUNT] __ALIGN__;
-static uint64_t pdp[ENTRY_COUNT] __ALIGN__;
-static uint64_t pd[ENTRY_COUNT] __ALIGN__;
+static uint64_t pml4[ENTRY_COUNT] __aligned4k;
+static uint64_t pdp[ENTRY_COUNT] __aligned4k;
+static uint64_t pd[ENTRY_COUNT] __aligned4k;
 
 static void clear_tables(void) {
         memset(pml4, 0, sizeof(pml4));
@@ -46,7 +45,7 @@ static void clear_tables(void) {
         memset(pd, 0, sizeof(pd));
 }
 
-void idmap_2MiB(uint64_t phys, uint64_t virt, uint64_t flags) {
+void idmap_2MiB(paddr_t phys, vaddr_t virt, uint64_t flags) {
     __CHECK_EQUALITY(phys, virt)
     __CHECK_PHYS(phys)
     __CHECK_VIRT(virt)
@@ -61,17 +60,17 @@ void idmap_2MiB(uint64_t phys, uint64_t virt, uint64_t flags) {
 }
 
 
-uint32_t p64_init(void) {
+paddr_t p64_init(void) {
         print(AS_PAG64, "CLEARING TABLES", l_green);
         clear_tables();
         
         print(AS_PAG64, "LINKING PML4[0]->PDP[0]->PD", l_green);
-        pml4[0] = ((uint64_t)pdp & MASK_4KiB) | PRESENT | WRITABLE;
-        pdp[0] = ((uint64_t)pd & MASK_4KiB) | PRESENT | WRITABLE;
+        pml4[0] = ((paddr_t)pdp & MASK_4KiB) | PRESENT | WRITABLE;
+        pdp[0] = ((paddr_t)pd & MASK_4KiB) | PRESENT | WRITABLE;
         print(AS_PAG64, "IDENTITY MAPPING AS WRITABLE"
         "\n{ phys:0x00000000 virt:0x00000000 }\n{ phys:0x00200000 virt:0x00200000 }", l_green);
         idmap_2MiB(0x00000000, 0x00000000, WRITABLE);
         idmap_2MiB(0x00200000, 0x00200000, WRITABLE);
         print(AS_PAG64, "RETURNING TO CALLER", l_green);
-        return (uint32_t)pml4;
+        return (paddr_t)pml4;
 }

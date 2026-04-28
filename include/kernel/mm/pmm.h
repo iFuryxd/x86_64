@@ -2,16 +2,23 @@
 #define PMM_H
 
 #include <common/types.h>
-#include <kernel/mm/parse_mbi.h>
-#define PAGE_SIZE 4096
-#define PMM_BITMAP_MAX_BYTES 8192
 
+typedef struct {
+    uint64_t total_frames;
+    uint64_t available_frames;
+    uint64_t used_frames;
+    uint64_t total_mib;
+    uint64_t available_mib;
+    uint64_t used_mib;
+    uint64_t reserved_frames;
+    uint64_t reserved_mib;
+} pmm_info;
 
-void pmm_init(void);
-uint32_t pmm_alloc_frame(void);
-void pmm_free_frame(uint32_t phys_addr);
+extern uint64_t frame_count;
 
-#ifdef KERNEL_DEBUG
-void dump_pmm_info(void);
-#endif
+void pmm_init();
+paddr_t pmm_alloc_frame();
+void pmm_free_frame(paddr_t phys);
+pmm_info *pmm_fetch_info();
+
 #endif

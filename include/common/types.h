@@ -12,18 +12,14 @@ typedef signed int int32_t;
 typedef signed long long int64_t;
 
 typedef uint8_t kbool_t;
-typedef uint32_t size_t;
+typedef uint64_t size_t;
+typedef uint64_t uintptr_t;
+typedef uint64_t paddr_t;
+typedef uint64_t vaddr_t;
 
 #define true ((kbool_t)1)
 #define false ((kbool_t)0)
 #define NULL ((void *)0)
-
-
-#define _pair(name, k, v)\
-            struct {\
-            __typeof__(k) key;\
-            __typeof__(v) value;\
-            } name = { .key = (k), .value = (v) }
 
 
 #define _map(name, size, ktype, vtype)\
@@ -32,12 +28,12 @@ typedef uint32_t size_t;
                 vtype value;\
                 kbool_t used;\
             } _entry;\
-            typedef struct {\
+            struct {\
             _entry entries[size];\
             } name;
 
 
 #define __noret __attribute__((noreturn))
-#define __align __attribute__((align(4096)))
+#define __aligned4k __attribute__((aligned(4096)))
 
 #endif

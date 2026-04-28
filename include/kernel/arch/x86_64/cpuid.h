@@ -5,8 +5,8 @@
 
 typedef struct {
 kbool_t cpuid_exists;
-uint32_t max_bleaf;
-uint32_t max_eleaf;
+uint64_t max_bleaf;
+uint64_t max_eleaf;
 kbool_t has_msr;
 kbool_t has_pae;
 kbool_t has_long_mode;

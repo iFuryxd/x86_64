@@ -9,20 +9,20 @@
 #define BIT_IS_SET(reg, bit) (((reg) & (1u << (bit))) != 0)
 
 static inline kbool_t cpuid_supported(void) {
-  uint32_t eflags_before = 0;
-  uint32_t eflags_after = 0;
+  uint64_t eflags_before = 0;
+  uint64_t eflags_after = 0;
 
   __asm__ volatile(
-      "pushfl\n\t"
-      "popl %0\n\t"
-      "movl %0, %1\n\t"
-      "xorl $0x00200000, %1\n\t"
-      "pushl %1\n\t"
-      "popfl\n\t"
-      "pushfl\n\t"
-      "popl %1\n\t"
-      "pushl %0\n\t"
-      "popfl\n\t"
+      "pushfq\n\t"
+      "popq %0\n\t"
+      "movq %0, %1\n\t"
+      "xorq $0x00200000, %1\n\t"
+      "pushq %1\n\t"
+      "popfq\n\t"
+      "pushfq\n\t"
+      "popq %1\n\t"
+      "pushq %0\n\t"
+      "popfq\n\t"
       : "=&r"(eflags_before), "=&r"(eflags_after)
       :
       : "cc");
@@ -31,14 +31,9 @@ static inline kbool_t cpuid_supported(void) {
 }
 
 static inline void cpuid_get(uint32_t leaf, uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx) {
-  uint32_t a = 0;
-  uint32_t b = 0;
-  uint32_t c = 0;
-  uint32_t d = 0;
+  uint32_t a = 0, b = 0, c = 0, d = 0;
 
-  __asm__ volatile("cpuid"
-                   : "=a"(a), "=b"(b), "=c"(c), "=d"(d)
-                   : "a"(leaf), "c"(0));
+  __asm__ volatile("cpuid" : "=a"(a), "=b"(b), "=c"(c), "=d"(d) : "a"(leaf), "c"(0));
 
   if (eax != NULL) {
     *eax = a;
@@ -54,7 +49,7 @@ static inline void cpuid_get(uint32_t leaf, uint32_t *eax, uint32_t *ebx, uint32
   }
 }
 
-static inline uint32_t cpuid_get_max(uint32_t base_leaf) {
+static inline uint64_t cpuid_get_max(uint64_t base_leaf) {
   uint32_t max_leaf = 0;
 
   cpuid_get(base_leaf, &max_leaf, NULL, NULL, NULL);

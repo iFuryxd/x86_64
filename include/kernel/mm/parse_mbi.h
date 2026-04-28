@@ -35,7 +35,7 @@ typedef struct __attribute__((packed)) {
 } multiboot_tag_mmap_t;
 
 typedef struct __attribute__((packed)) {
-  uint64_t addr;
+  paddr_t addr;
   uint64_t len;
   uint32_t type;
   uint32_t zero;
@@ -43,21 +43,19 @@ typedef struct __attribute__((packed)) {
 
 
 typedef struct {
-  uint64_t base;
+  paddr_t base;
   uint64_t len;
   uint32_t type;
 } memory_region_t;
 
 extern memory_region_t memory_regions[MAX_MEMORY_REGIONS];
-extern uint32_t memory_region_count;
+extern uint64_t memory_region_count;
 
-extern uint32_t multiboot_info_base;
-extern uint32_t multiboot_info_size;
+extern uint64_t multiboot_info_base;
+extern uint64_t multiboot_info_size;
 
-void parse_mbi(uint32_t multiboot_info);
+void parse_mbi(uint64_t multiboot_info);
 
-#ifdef KERNEL_DEBUG
-void dump_memory_regions(void);
-#endif
+
 
 #endif
